@@ -1,6 +1,7 @@
 package org.koreait.motivation.controller;
 
 import org.koreait.motivation.entity.Motivation;
+import org.koreait.system.Rq;
 import org.koreait.system.controller.Container;
 
 import java.util.ArrayList;
@@ -53,19 +54,62 @@ public class MotivationController {
         }
     }
 
-    public void delete() {
-        System.out.print("삭제할 id = ");
-        int id = Integer.parseInt(Container.getScanner().nextLine());
-        for (int i = motivations.size() - 1; i >= 0; i--) {
-            Motivation motivation = motivations.get(i);
+    public void delete(Rq rq) {
+        System.out.println("delete 실행");
+        int id;
+        try{
+            id = Integer.parseInt(rq.getParams("id"));
+        }catch (NumberFormatException e) {
+            System.out.println("정수 입력 오류");
+            return;
+        }
+        Motivation motivation = findById(id);
+        if (motivation == null) {
+            System.out.printf("%d번 motivation은 없어\n",id);
+            return;
+        }
+        motivations.remove(motivation);
+        System.out.printf("%d번 motivation을 삭제했습니다\n",id);
+    }
+    public void edit(Rq rq) {
+        System.out.println("edit 실행");
+
+        int id;
+
+        try {
+            id = Integer.parseInt(rq.getParams("id"));
+        } catch (NumberFormatException e) {
+            System.out.println("정수 입력 오류");
+            return;
+        }
+
+        Motivation motivation = findById(id);
+
+        if (motivation == null) {
+            System.out.printf("%d번 motivation은 없어\n", id);
+            return;
+        }
+        System.out.println("body(기존) : " + motivation.getBody());
+        System.out.println("source(기존) : " + motivation.getSource());
+
+        System.out.print("body : ");
+        String body = Container.getScanner().nextLine();
+        System.out.print("source : ");
+        String source = Container.getScanner().nextLine();
+
+        motivation.setBody(body);
+        motivation.setSource(source);
+
+        System.out.printf("%d번 motivation을 수정했습니다\n", id);
+
+    }
+    private Motivation findById(int id) {
+        for (Motivation motivation : motivations) {
             if (motivation.getId() == id) {
-                motivations.remove(i);
-            }
-            if (id > motivation.getId()) {
-                System.out.printf("%d번 motivation은 없습니다\n",id);
-                return;
+                return motivation;
             }
         }
-        System.out.printf("%d번 motivation이 삭제되었습니다\n",id);
+        return null;
+
     }
 }

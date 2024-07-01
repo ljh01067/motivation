@@ -2,46 +2,54 @@ package org.koreait.system;
 
 
 import org.koreait.motivation.controller.MotivationController;
-import org.koreait.motivation.entity.Motivation;
 import org.koreait.system.controller.Container;
 import org.koreait.system.controller.SystemController;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 
 public class App {
 
-    public App() {
+        byte system_status = 1;
 
-    }
+
     public void run() {
         System.out.println("== motivation execution ==");
 
         SystemController systemController = new SystemController();
         MotivationController motivationController = new MotivationController();
 
-        while (true) {
+        while (system_status == 1) {
             System.out.print("command) ");
             String cmd = Container.getScanner().nextLine().trim();
-            if (cmd.equals("exit")) {
-                systemController.exit();
-                break;
-            } else if (cmd.length() == 0) {
+            if (cmd.length() == 0) {
                 System.out.println("명령어 입력해");
                 continue;
             }
-            if (cmd.equals("add")) {
-               motivationController.add();
-            } else if (cmd.equals("list")) {
-                motivationController.list();
-            } else if (cmd.equals("delete")) {
-                motivationController.delete();
+            Rq rq = new Rq(cmd);
+
+            if (rq.getErrMsg().equals("오타 있음(id)")) {
+                continue;
             }
-            else{
-                System.out.println("사용할 수 없는 명령어입니다.");
-            }
+
+            switch (rq.getActionMethod()) {
+                case "exit":
+                    systemController.exit();
+                    system_status = 0;
+                    break;
+                case "add":
+                    motivationController.add();
+                    break;
+                case "list":
+                    motivationController.list();
+                    break;
+                case "delete":
+                    motivationController.delete(rq);
+                    break;
+                case "edit":
+                    motivationController.edit(rq);
+                    break;
+                default:
+                    System.out.println("사용할 수 없는 명령어입니다");
+                    break;
         }
     }
-}
+}}
